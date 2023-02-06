@@ -41,7 +41,7 @@ private:
     int inputWidth, inputHeight;
 
     float nmsThresh;
-
+    
     int nmsHandle(std::vector<TargetBox> &tmpBoxes, std::vector<TargetBox> &dstBoxes);
     int getCategory(const float *values, int index, int &category, float &score);
     int predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstBoxes, 
@@ -50,7 +50,8 @@ private:
 public:
     yoloFastestv2();
     ~yoloFastestv2();
-
+    
+    int init(const bool use_vulkan_compute);
     int loadModel(const char* paramPath, const char* binPath);
     int detection(const cv::Mat srcImg, std::vector<TargetBox> &dstBoxes, 
                   const float thresh = 0.3);

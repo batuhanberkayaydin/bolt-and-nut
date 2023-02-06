@@ -1,0 +1,19 @@
+{
+  "videoPath": "test.mp4",
+  "modelBinFile": "boltnut-sim-opt.bin",
+  "modelParamFile": "boltnut-sim-opt.param",
+  "printProcessMs": true,
+  "confThresh": 0.95,
+  "iouThresh": 0.3,
+  "showImage":true,
+  "tracker":
+  {
+    "maxAge": 10
+  },
+  "videoRecord":
+  {
+    "isRecordingEnable" : true,
+    "isAvi": false,
+    "isH264": true
+  }
+}

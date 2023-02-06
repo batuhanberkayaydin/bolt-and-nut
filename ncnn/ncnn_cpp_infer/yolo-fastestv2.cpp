@@ -13,9 +13,9 @@ yoloFastestv2::yoloFastestv2()
     //anchor num
     numAnchor = 3;
     //类别数目
-    numCategory = 1;
+    numCategory = 2;
     //NMS阈值
-    nmsThresh = 0.25;
+    nmsThresh = 0.10;
 
     //模型输入尺寸大小
     inputWidth = 352;
@@ -30,8 +30,7 @@ yoloFastestv2::yoloFastestv2()
     printf("numThreads:%d\n", numThreads);
     printf("inputWidth:%d inputHeight:%d\n", inputWidth, inputHeight);
 
-    //anchor box w h 24.68,26.73, 35.51,13.71, 39.51,36.41, 45.11,21.39, 66.12,48.71, 74.42,28.47
-    std::vector<float> bias {24.68,26.73, 35.51,13.71, 39.51,36.41, 45.11,21.39, 66.12,48.71, 74.42,28.47};
+    std::vector<float> bias {21.03,25.15, 25.58,60.29, 27.94,17.45, 35.42,37.10, 53.58,58.27, 59.71,27.79};
 
     anchor.assign(bias.begin(), bias.end());
 }
@@ -39,6 +38,24 @@ yoloFastestv2::yoloFastestv2()
 yoloFastestv2::~yoloFastestv2()
 {
     printf("Destroy yoloFastestv2 Detector...\n");
+}
+
+int yoloFastestv2::init(const bool use_vulkan_compute)
+{
+    net.opt.use_winograd_convolution = true;
+    net.opt.use_sgemm_convolution = true;
+    net.opt.use_int8_inference = true;
+    net.opt.use_vulkan_compute = use_vulkan_compute;
+    net.opt.use_fp16_packed = true;
+    net.opt.use_fp16_storage = true;
+    net.opt.use_fp16_arithmetic = true;
+    net.opt.use_int8_storage = true;
+    net.opt.use_int8_arithmetic = true;
+    net.opt.use_packing_layout = true;
+    net.opt.use_shader_pack8 = false;
+    net.opt.use_image_storage = false;
+
+    return 0;
 }
 
 //ncnn 模型加载
