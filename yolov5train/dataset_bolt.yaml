@@ -1,0 +1,8 @@
+train: /home/berkay/Desktop/bolt-nuts-dataset/train/
+test: /home/berkay/Desktop/bolt-nuts-dataset/test/
+val: /home/berkay/Desktop/bolt-nuts-dataset/val/
+nc: 2
+names:
+  0: bolt
+  1: nut
+

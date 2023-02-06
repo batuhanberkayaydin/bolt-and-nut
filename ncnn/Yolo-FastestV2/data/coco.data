@@ -1,0 +1,22 @@
+[name]
+model_name=coco
+
+[train-configure]
+epochs=780
+steps=120,240,360,480,600,720
+batch_size=96
+subdivisions=1
+learning_rate=0.001
+
+[model-configure]
+pre_weights=None
+classes=1
+width=352
+height=352
+anchor_num=3
+anchors=24.68,26.73, 35.51,13.71, 39.51,36.41, 45.11,21.39, 66.12,48.71, 74.42,28.47
+
+[data-configure]
+train=/home/berkay/Desktop/dataset/trainnew2.txt
+val=/home/berkay/Desktop/dataset/valnew2.txt
+names=./data/coco.names

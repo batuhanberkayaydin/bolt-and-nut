@@ -1,0 +1,17 @@
+{
+  "printProcessMs": true,
+  "confThresh": 0.6,
+  "nmsThresh": 0.1,
+  "batchSize": 1,
+  "showImage":true,
+  "tracker":
+  {
+    "maxAge": 10
+  },
+  "videoRecord":
+  {
+    "isRecordingEnable" : false,
+    "isAvi": true,
+    "isH264": false
+  }
+}

@@ -1,0 +1,22 @@
+[name]
+model_name=boltnut
+
+[train-configure]
+epochs=600
+steps=120,240,360,480
+batch_size=96
+subdivisions=1
+learning_rate=0.001
+
+[model-configure]
+pre_weights=None
+classes=2
+width=352
+height=352
+anchor_num=3
+anchors=21.03,25.15, 25.58,60.29, 27.94,17.45, 35.42,37.10, 53.58,58.27, 59.71,27.79
+
+[data-configure]
+train=/home/berkay/Desktop/dataset/bolttrain.txt
+val=/home/berkay/Desktop/dataset/boltval.txt
+names=./data/boltnut.names
