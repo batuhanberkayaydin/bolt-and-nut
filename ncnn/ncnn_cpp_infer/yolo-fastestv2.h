@@ -30,10 +30,6 @@ private:
     ncnn::Net net;
     std::vector<float> anchor;
 
-    char *inputName;
-    char *outputName1;
-    char *outputName2;
-
     int numAnchor;
     int numOutput;
     int numThreads;
@@ -41,19 +37,19 @@ private:
     int inputWidth, inputHeight;
 
     float nmsThresh;
-    
+
     int nmsHandle(std::vector<TargetBox> &tmpBoxes, std::vector<TargetBox> &dstBoxes);
     int getCategory(const float *values, int index, int &category, float &score);
-    int predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstBoxes, 
+    int predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstBoxes,
                    const float scaleW, const float scaleH, const float thresh);
 
 public:
     yoloFastestv2();
     ~yoloFastestv2();
-    
-    int init(const bool use_vulkan_compute);
+
+    int init(const bool use_vulkan_compute=false);
     int loadModel(const char* paramPath, const char* binPath);
-    int detection(const cv::Mat srcImg, std::vector<TargetBox> &dstBoxes, 
+    int detection(const cv::Mat srcImg, std::vector<TargetBox> &dstBoxes,
                   const float thresh = 0.3);
 };
 #endif

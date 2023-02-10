@@ -26,7 +26,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 
-set(ncnn_DIR "/home/berkay/ncnn/ncnn/build/install/lib/cmake/ncnn/")
+set(ncnn_DIR "/media/kazbim/kazbim/test1/ncnn/build/install/lib/cmake/ncnn/")
 find_package(ncnn REQUIRED)
 if(NOT TARGET ncnn)
     message(WARNING "ncnn NOT FOUND!  Please set ncnn_DIR environment variable")
@@ -40,7 +40,7 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_executable(ncnn_demo demo.cpp jsonConfig.cpp hungarian.cpp kalmanTracker.cpp yolo-fastestv2.cpp)
+add_executable(ncnn_demo mainFV2.cpp jsonConfig.cpp hungarian.cpp kalmanTracker.cpp yolo-fastestv2.cpp)
 
 target_include_directories(ncnn_demo PUBLIC
                           "${PROJECT_BINARY_DIR}"

@@ -4,32 +4,15 @@
 
 //模型的参数配置
 yoloFastestv2::yoloFastestv2()
-{   
-    printf("Creat yoloFastestv2 Detector...\n");
-    //输出节点数
+{
     numOutput = 2;
-    //推理线程数
     numThreads = 4;
-    //anchor num
     numAnchor = 3;
-    //类别数目
     numCategory = 2;
-    //NMS阈值
-    nmsThresh = 0.10;
-
-    //模型输入尺寸大小
+    nmsThresh = 0.25;
     inputWidth = 352;
     inputHeight = 352;
-
-    //模型输入输出节点名称
-    inputName = "input.1";
-    outputName1 = "794"; //22x22
-    outputName2 = "796"; //11x11
-
-    //打印初始化相关信息
-    printf("numThreads:%d\n", numThreads);
-    printf("inputWidth:%d inputHeight:%d\n", inputWidth, inputHeight);
-
+    //anchor box w h
     std::vector<float> bias {21.03,25.15, 25.58,60.29, 27.94,17.45, 35.42,37.10, 53.58,58.27, 59.71,27.79};
 
     anchor.assign(bias.begin(), bias.end());
@@ -37,7 +20,7 @@ yoloFastestv2::yoloFastestv2()
 
 yoloFastestv2::~yoloFastestv2()
 {
-    printf("Destroy yoloFastestv2 Detector...\n");
+    ;
 }
 
 int yoloFastestv2::init(const bool use_vulkan_compute)
@@ -61,10 +44,8 @@ int yoloFastestv2::init(const bool use_vulkan_compute)
 //ncnn 模型加载
 int yoloFastestv2::loadModel(const char* paramPath, const char* binPath)
 {
-    printf("Ncnn mode init:\n%s\n%s\n", paramPath, binPath);
-
     net.load_param(paramPath);
-    net.load_model(binPath);    
+    net.load_model(binPath);
 
     printf("Ncnn model init sucess...\n");
 
@@ -73,11 +54,7 @@ int yoloFastestv2::loadModel(const char* paramPath, const char* binPath)
 
 float intersection_area(const TargetBox &a, const TargetBox &b)
 {
-    if (a.x1 > b.x2 || a.x2 < b.x1 || a.y1 > b.y2 || a.y2 < b.y1)
-    {
-        // no intersection
-        return 0.f;
-    }
+    if (a.x1 > b.x2 || a.x2 < b.x1 || a.y1 > b.y2 || a.y2 < b.y1) return 0.f; // no intersection
 
     float inter_width = std::min(a.x2, b.x2) - std::max(a.x1, b.x1);
     float inter_height = std::min(a.y2, b.y2) - std::max(a.y1, b.y1);
@@ -85,22 +62,22 @@ float intersection_area(const TargetBox &a, const TargetBox &b)
     return inter_width * inter_height;
 }
 
-bool scoreSort(TargetBox a, TargetBox b) 
-{ 
-    return (a.score > b.score); 
+bool scoreSort(TargetBox a, TargetBox b)
+{
+    return (a.score > b.score);
 }
 
 //NMS处理
-int yoloFastestv2::nmsHandle(std::vector<TargetBox> &tmpBoxes, 
+int yoloFastestv2::nmsHandle(std::vector<TargetBox> &tmpBoxes,
                              std::vector<TargetBox> &dstBoxes)
 {
     std::vector<int> picked;
-    
+
     sort(tmpBoxes.begin(), tmpBoxes.end(), scoreSort);
 
-    for (int i = 0; i < tmpBoxes.size(); i++) {
+    for(size_t i = 0; i < tmpBoxes.size(); i++) {
         int keep = 1;
-        for (int j = 0; j < picked.size(); j++) {
+        for(size_t j = 0; j < picked.size(); j++) {
             //交集
             float inter_area = intersection_area(tmpBoxes[i], tmpBoxes[picked[j]]);
             //并集
@@ -117,8 +94,8 @@ int yoloFastestv2::nmsHandle(std::vector<TargetBox> &tmpBoxes,
             picked.push_back(i);
         }
     }
-    
-    for (int i = 0; i < picked.size(); i++) {
+
+    for(size_t i = 0; i < picked.size(); i++) {
         dstBoxes.push_back(tmpBoxes[picked[i]]);
     }
 
@@ -138,19 +115,18 @@ int yoloFastestv2::getCategory(const float *values, int index, int &category, fl
         if(clsScore > tmp) {
             score = clsScore;
             category = i;
-
             tmp = clsScore;
         }
     }
-    
+
     return 0;
 }
 
 //特征图后处理
-int yoloFastestv2::predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstBoxes, 
+int yoloFastestv2::predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstBoxes,
                               const float scaleW, const float scaleH, const float thresh)
 {    //do result
-    for (int i = 0; i < numOutput; i++) {   
+    for (int i = 0; i < numOutput; i++) {
         int stride;
         int outW, outH, outC;
 
@@ -165,7 +141,7 @@ int yoloFastestv2::predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstB
             const float* values = out[i].channel(h);
 
             for (int w = 0; w < outW; w++) {
-                for (int b = 0; b < numAnchor; b++) {                    
+                for (int b = 0; b < numAnchor; b++) {
                     //float objScore = values[4 * numAnchor + b];
                     TargetBox tmpBox;
                     int category = -1;
@@ -180,7 +156,7 @@ int yoloFastestv2::predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstB
                         bcy = ((values[b * 4 + 1] * 2. - 0.5) + h) * stride;
                         bw = pow((values[b * 4 + 2] * 2.), 2) * anchor[(i * numAnchor * 2) + b * 2 + 0];
                         bh = pow((values[b * 4 + 3] * 2.), 2) * anchor[(i * numAnchor * 2) + b * 2 + 1];
-                        
+
                         tmpBox.x1 = (bcx - 0.5 * bw) * scaleW;
                         tmpBox.y1 = (bcy - 0.5 * bh) * scaleH;
                         tmpBox.x2 = (bcx + 0.5 * bw) * scaleW;
@@ -192,39 +168,39 @@ int yoloFastestv2::predHandle(const ncnn::Mat *out, std::vector<TargetBox> &dstB
                     }
                 }
                 values += outC;
-            } 
-        } 
+            }
+        }
     }
     return 0;
 }
 
 int yoloFastestv2::detection(const cv::Mat srcImg, std::vector<TargetBox> &dstBoxes, const float thresh)
-{   
+{
     dstBoxes.clear();
 
     float scaleW = (float)srcImg.cols / (float)inputWidth;
     float scaleH = (float)srcImg.rows / (float)inputHeight;
-    
+
     //resize of input image data
     ncnn::Mat inputImg = ncnn::Mat::from_pixels_resize(srcImg.data, ncnn::Mat::PIXEL_BGR,\
-                                                       srcImg.cols, srcImg.rows, inputWidth, inputHeight); 
+                                                       srcImg.cols, srcImg.rows, inputWidth, inputHeight);
 
     //Normalization of input image data
     const float mean_vals[3] = {0.f, 0.f, 0.f};
     const float norm_vals[3] = {1/255.f, 1/255.f, 1/255.f};
-    inputImg.substract_mean_normalize(mean_vals, norm_vals);  
+    inputImg.substract_mean_normalize(mean_vals, norm_vals);
 
     //creat extractor
     ncnn::Extractor ex = net.create_extractor();
     ex.set_num_threads(numThreads);
 
     //set input tensor
-    ex.input(inputName, inputImg);
+    ex.input("input.1", inputImg);
 
     //forward
-    ncnn::Mat out[2]; 
-    ex.extract(outputName1, out[0]); //22x22
-    ex.extract(outputName2, out[1]); //11x11
+    ncnn::Mat out[2];
+    ex.extract("794", out[0]); //22x22
+    ex.extract("796", out[1]); //11x11
 
     std::vector<TargetBox> tmpBoxes;
     //特征图后处理
@@ -232,6 +208,6 @@ int yoloFastestv2::detection(const cv::Mat srcImg, std::vector<TargetBox> &dstBo
 
     //NMS
     nmsHandle(tmpBoxes, dstBoxes);
-    
+
     return 0;
 }

@@ -1,11 +1,11 @@
 {
-  "videoPath": "test.mp4",
-  "modelBinFile": "boltnut-sim-opt.bin",
-  "modelParamFile": "boltnut-sim-opt.param",
+  "videoPath": "/media/kazbim/usbstick/test.mp4",
+  "modelBinFile": "/media/kazbim/usbstick/ncnnweights/9sub/lasttrain130-sim-opt-fp16.bin",
+  "modelParamFile": "/media/kazbim/usbstick/ncnnweights/9sub/lasttrain130-sim-opt-fp16.param",
   "printProcessMs": true,
-  "confThresh": 0.95,
+  "confThresh": 0.85,
   "iouThresh": 0.3,
-  "showImage":true,
+  "showImage":false,
   "tracker":
   {
     "maxAge": 10
