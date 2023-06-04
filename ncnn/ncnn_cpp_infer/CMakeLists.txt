@@ -26,7 +26,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 
-set(ncnn_DIR "/media/kazbim/kazbim/test1/ncnn/build/install/lib/cmake/ncnn/")
+set(ncnn_DIR "/media/test/test/test1/ncnn/build/install/lib/cmake/ncnn/")
 find_package(ncnn REQUIRED)
 if(NOT TARGET ncnn)
     message(WARNING "ncnn NOT FOUND!  Please set ncnn_DIR environment variable")
